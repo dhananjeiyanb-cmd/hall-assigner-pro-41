@@ -1,0 +1,189 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System for Exam Hall Management System */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 217 91% 35%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 46%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 9% 46%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 35%;
+
+    --radius: 0.75rem;
+
+    /* Academic Theme Colors */
+    --academic-blue: 217 91% 35%;
+    --academic-light-blue: 213 94% 68%;
+    --academic-navy: 217 33% 17%;
+    --academic-gray: 220 9% 46%;
+    --academic-light-gray: 220 14% 96%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+    
+    /* Gradients */
+    --primary-gradient: linear-gradient(135deg, hsl(217 91% 35%) 0%, hsl(213 94% 68%) 100%);
+    --card-gradient: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
+  }
+
+  .dark {
+    --background: 217 33% 17%;
+    --foreground: 210 40% 98%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 213 94% 68%;
+    --primary-foreground: 217 33% 17%;
+    --secondary: 217 33% 25%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 25%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217 33% 25%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 213 94% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-foreground;
+  }
+}
+
+@layer components {
+  /* Academic Card Styles */
+  .academic-card {
+    @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
+    background: var(--card-gradient);
+  }
+
+  .academic-card-header {
+    @apply p-6 pb-4 border-b border-border;
+  }
+
+  .academic-card-content {
+    @apply p-6;
+  }
+
+  /* Primary Gradient Button */
+  .btn-primary-gradient {
+    background: var(--primary-gradient);
+    @apply text-white font-medium px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105;
+  }
+
+  /* Stats Card */
+  .stats-card {
+    @apply academic-card p-6 text-center;
+  }
+
+  .stats-number {
+    @apply text-3xl font-bold text-primary mb-2;
+  }
+
+  .stats-label {
+    @apply text-sm text-muted-foreground font-medium uppercase tracking-wide;
+  }
+
+  /* Data Table */
+  .data-table {
+    @apply w-full border-collapse bg-card rounded-lg overflow-hidden shadow-sm;
+  }
+
+  .data-table th {
+    @apply bg-muted text-muted-foreground font-medium text-left px-4 py-3 text-sm uppercase tracking-wide;
+  }
+
+  .data-table td {
+    @apply px-4 py-3 border-t border-border;
+  }
+
+  .data-table tr:hover {
+    @apply bg-accent/50;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-3 text-foreground hover:bg-accent rounded-lg transition-colors duration-200;
+  }
+
+  .nav-link.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  /* Form Elements */
+  .form-section {
+    @apply academic-card mb-6;
+  }
+
+  .form-title {
+    @apply text-lg font-semibold text-foreground mb-4;
+  }
+
+  /* Status Badges */
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-upcoming {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .status-ongoing {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .status-completed {
+    @apply bg-gray-100 text-gray-800;
+  }
+
+  /* Seating Chart */
+  .seat {
+    @apply w-8 h-8 rounded border-2 border-border flex items-center justify-center text-xs font-medium cursor-pointer hover:shadow-md transition-all duration-200;
+  }
+
+  .seat-occupied {
+    @apply bg-primary text-primary-foreground border-primary;
+  }
+
+  .seat-empty {
+    @apply bg-background hover:bg-accent;
+  }
+}
