@@ -9,6 +9,7 @@ import LoginForm from '@/components/LoginForm';
 import SeatAllocation from '@/components/SeatAllocation';
 import Reports from '@/components/Reports';
 import Settings from '@/components/Settings';
+import ExamManagement from '@/components/ExamManagement';
 
 const Index = () => {
   const [currentUser, setCurrentUser] = useState<{ type: 'faculty' | 'student'; data: any } | null>(null);
@@ -37,6 +38,8 @@ const Index = () => {
           return <StudentManagement />;
         case 'excel-upload':
           return <ExcelUpload />;
+        case 'exams':
+          return <ExamManagement />;
         case 'classrooms':
           return <ClassroomManagement />;
         case 'allocations':

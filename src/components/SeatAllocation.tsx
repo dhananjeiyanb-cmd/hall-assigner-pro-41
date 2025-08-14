@@ -35,6 +35,10 @@ interface Student {
   year: string;
   section: string;
   department: string;
+  created_at: string;
+  email: string | null;
+  password: string | null;
+  updated_at: string;
 }
 
 interface SeatingCombination {
@@ -43,6 +47,7 @@ interface SeatingCombination {
   allowed_years: string[];
   allowed_sections: string[];
   mix_strategy: string;
+  created_at: string;
 }
 
 const SeatAllocation = () => {
@@ -289,17 +294,14 @@ const SeatAllocation = () => {
                   <SelectContent>
                     {seatingCombinations.map((combination) => (
                       <SelectItem key={combination.id} value={combination.id}>
-                        <div className="space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <span>{combination.name}</span>
-                            {combination.is_default && (
-                              <Badge variant="secondary" className="text-xs">Default</Badge>
-                            )}
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <span>{combination.name}</span>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {combination.mix_strategy} mixing • Years: {combination.allowed_years.join(', ')}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500">
-                            {combination.mix_strategy} mixing • Years: {combination.allowed_years.join(', ')}
-                          </div>
-                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

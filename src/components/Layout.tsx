@@ -29,6 +29,7 @@ const Layout = ({ children, currentPage, onNavigate, userType, userData, onLogou
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
     { id: 'excel-upload', label: 'Excel Upload', icon: Upload },
+    { id: 'exams', label: 'Exam Management', icon: BookOpen },
     { id: 'classrooms', label: 'Classrooms', icon: Building },
     { id: 'allocations', label: 'Seat Allocation', icon: Calendar },
     { id: 'reports', label: 'Reports', icon: FileText },
