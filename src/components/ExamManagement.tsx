@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 interface Exam {
   id: string;
+  exam_type?: string;
   subject: string;
   exam_date: string;
   start_time: string;
@@ -28,6 +29,7 @@ const ExamManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExam, setEditingExam] = useState<Exam | null>(null);
   const [formData, setFormData] = useState({
+    examType: '',
     subject: '',
     exam_date: '',
     start_time: '',
@@ -54,7 +56,7 @@ const ExamManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.subject || !formData.exam_date || !formData.start_time || formData.years.length === 0) {
+    if (!formData.examType || !formData.subject || !formData.exam_date || !formData.start_time || formData.years.length === 0) {
       toast({
         title: "Missing Fields",
         description: "Please fill in all required fields and select at least one year.",
@@ -67,6 +69,7 @@ const ExamManagement = () => {
     const endTime = new Date(startTime.getTime() + (formData.duration_hours * 60 * 60 * 1000));
     
     const examData = {
+      exam_type: formData.examType,
       subject: formData.subject,
       exam_date: formData.exam_date,
       start_time: formData.start_time,
@@ -117,6 +120,7 @@ const ExamManagement = () => {
 
   const resetForm = () => {
     setFormData({
+      examType: '',
       subject: '',
       exam_date: '',
       start_time: '',
@@ -129,6 +133,7 @@ const ExamManagement = () => {
   const handleEdit = (exam: Exam) => {
     setEditingExam(exam);
     setFormData({
+      examType: exam.exam_type || '',
       subject: exam.subject,
       exam_date: exam.exam_date,
       start_time: exam.start_time,
@@ -202,12 +207,29 @@ const ExamManagement = () => {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="exam_type">Exam Type *</Label>
+                <Select 
+                  value={formData.examType} 
+                  onValueChange={(value) => setFormData({...formData, examType: value, subject: ''})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select exam type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CAIT-1">CAIT-1</SelectItem>
+                    <SelectItem value="CAIT-2">CAIT-2</SelectItem>
+                    <SelectItem value="FINAL SEM">FINAL SEM</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="subject">Subject *</Label>
                 <Input
                   id="subject"
                   value={formData.subject}
                   onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  placeholder="e.g., Mathematics, Physics, Internal-1, Model Exam"
+                  placeholder="e.g., Mathematics, Physics, Computer Networks"
                   required
                 />
               </div>
@@ -301,7 +323,10 @@ const ExamManagement = () => {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-3">
                     <BookOpen className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-semibold text-lg">{exam.subject}</h3>
+                    <div>
+                      {exam.exam_type && <Badge variant="outline" className="mb-1">{exam.exam_type}</Badge>}
+                      <h3 className="font-semibold text-lg">{exam.subject}</h3>
+                    </div>
                     <Badge variant={getStatusBadgeVariant(exam.status)}>{exam.status}</Badge>
                   </div>
                   

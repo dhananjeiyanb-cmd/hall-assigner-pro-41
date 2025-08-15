@@ -185,6 +185,19 @@ const StudentManagement = () => {
     }
   };
 
+  const downloadTemplate = () => {
+    const csvContent = "Roll Number,Student Name,Year,Section,Department\nCS21001,John Doe,1st Year,A,Computer Science\nIT21002,Jane Smith,2nd Year,B,Information Technology";
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'student_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.roll_number.toLowerCase().includes(searchTerm.toLowerCase());
@@ -212,7 +225,7 @@ const StudentManagement = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
+          <Button variant="outline" onClick={downloadTemplate}>
             <Download className="h-4 w-4 mr-2" />
             Download Template
           </Button>
