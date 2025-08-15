@@ -11,6 +11,7 @@ import { Calendar, Users, Building, CheckCircle, AlertCircle } from "lucide-reac
 
 interface Exam {
   id: string;
+  exam_type?: string;
   subject: string;
   exam_date: string;
   start_time: string;
@@ -273,11 +274,18 @@ const SeatAllocation = () => {
                   <SelectContent>
                     {exams.map((exam) => (
                       <SelectItem key={exam.id} value={exam.id}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{exam.subject}</span>
-                          <span className="text-xs text-gray-500 ml-2">
-                            {new Date(exam.exam_date).toLocaleDateString()} - {exam.years.join(', ')}
-                          </span>
+                        <div className="flex flex-col space-y-1">
+                          <div className="flex items-center space-x-2">
+                            {exam.exam_type && (
+                              <Badge variant="outline" className="text-xs">
+                                {exam.exam_type}
+                              </Badge>
+                            )}
+                            <span className="font-medium">{exam.subject}</span>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(exam.exam_date).toLocaleDateString()} • {exam.years.join(', ')}
+                          </div>
                         </div>
                       </SelectItem>
                     ))}
@@ -312,6 +320,11 @@ const SeatAllocation = () => {
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-2">Exam Details</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
+                    {selectedExamDetails.exam_type && (
+                      <div>
+                        <span className="text-blue-700">Exam Type:</span> {selectedExamDetails.exam_type}
+                      </div>
+                    )}
                     <div>
                       <span className="text-blue-700">Subject:</span> {selectedExamDetails.subject}
                     </div>
