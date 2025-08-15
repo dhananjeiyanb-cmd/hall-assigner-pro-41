@@ -148,6 +148,7 @@ export type Database = {
           duration_hours: number | null
           end_time: string
           exam_date: string
+          exam_type: string | null
           id: string
           start_time: string
           status: string
@@ -160,6 +161,7 @@ export type Database = {
           duration_hours?: number | null
           end_time: string
           exam_date: string
+          exam_type?: string | null
           id?: string
           start_time: string
           status?: string
@@ -172,6 +174,7 @@ export type Database = {
           duration_hours?: number | null
           end_time?: string
           exam_date?: string
+          exam_type?: string | null
           id?: string
           start_time?: string
           status?: string
