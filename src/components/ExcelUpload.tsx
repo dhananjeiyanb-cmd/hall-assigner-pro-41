@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import * as XLSX from 'xlsx';
 
 interface Student {
   roll_number: string;
@@ -28,8 +29,63 @@ const ExcelUpload = () => {
     return Math.random().toString(36).slice(-8);
   };
 
+  const parseExcelFile = async (file: File): Promise<Student[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to JSON with header row
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (jsonData.length < 2) {
+            reject(new Error('File must contain at least a header row and one data row'));
+            return;
+          }
+          
+          const headers = (jsonData[0] as string[]).map(h => h?.toString().trim().toLowerCase() || '');
+          const students = [];
+          
+          for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i] as any[];
+            if (!row || row.every(cell => !cell)) continue; // Skip empty rows
+            
+            const student: any = {};
+            
+            headers.forEach((header, index) => {
+              const value = row[index]?.toString().trim() || '';
+              if (header === 'roll_number' || header === 'roll number') student.roll_number = value;
+              if (header === 'name' || header === 'student name') student.name = value;
+              if (header === 'year') student.year = value;
+              if (header === 'section') student.section = value;
+              if (header === 'department') student.department = value;
+              if (header === 'email') student.email = value;
+            });
+            
+            student.password = generatePassword();
+            students.push(student as Student);
+          }
+          
+          resolve(students);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
   const parseCSV = (text: string): Student[] => {
     const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length < 2) return [];
+    
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     
     return lines.slice(1).map(line => {
@@ -38,7 +94,7 @@ const ExcelUpload = () => {
       
       headers.forEach((header, index) => {
         if (header === 'roll_number' || header === 'roll number') student.roll_number = values[index];
-        if (header === 'name') student.name = values[index];
+        if (header === 'name' || header === 'student name') student.name = values[index];
         if (header === 'year') student.year = values[index];
         if (header === 'section') student.section = values[index];
         if (header === 'department') student.department = values[index];
@@ -58,8 +114,21 @@ const ExcelUpload = () => {
     setUploadResult(null);
 
     try {
-      const text = await file.text();
-      const students = parseCSV(text);
+      let students: Student[] = [];
+      
+      // Check file type and parse accordingly
+      if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        students = await parseExcelFile(file);
+      } else if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+        const text = await file.text();
+        students = parseCSV(text);
+      } else {
+        throw new Error('Unsupported file format. Please use .xlsx, .xls, .csv, or .txt files.');
+      }
+      
+      if (students.length === 0) {
+        throw new Error('No valid student data found in the file.');
+      }
       
       let successCount = 0;
       let failedCount = 0;
@@ -69,24 +138,28 @@ const ExcelUpload = () => {
         try {
           // Validate required fields
           if (!student.roll_number || !student.name || !student.year || !student.section || !student.department) {
-            errors.push(`Row ${students.indexOf(student) + 2}: Missing required fields`);
+            errors.push(`Row ${students.indexOf(student) + 2}: Missing required fields (roll_number, name, year, section, department)`);
             failedCount++;
             continue;
           }
 
-          // Validate year format
-          if (!['II Year', 'III Year', 'IV Year'].includes(student.year)) {
-            errors.push(`Row ${students.indexOf(student) + 2}: Invalid year "${student.year}". Must be "II Year", "III Year", or "IV Year"`);
+          // Validate year format - updated to match common formats
+          const validYears = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'II Year', 'III Year', 'IV Year'];
+          if (!validYears.includes(student.year)) {
+            errors.push(`Row ${students.indexOf(student) + 2}: Invalid year "${student.year}". Must be one of: ${validYears.join(', ')}`);
             failedCount++;
             continue;
           }
 
           // Validate section
-          if (!['A', 'B', 'C', 'D'].includes(student.section)) {
+          if (!['A', 'B', 'C', 'D'].includes(student.section.toUpperCase())) {
             errors.push(`Row ${students.indexOf(student) + 2}: Invalid section "${student.section}". Must be A, B, C, or D`);
             failedCount++;
             continue;
           }
+
+          // Ensure section is uppercase
+          student.section = student.section.toUpperCase();
 
           const { error } = await supabase
             .from('students')
@@ -103,7 +176,7 @@ const ExcelUpload = () => {
             successCount++;
           }
         } catch (err) {
-          errors.push(`Row ${students.indexOf(student) + 2}: Unexpected error`);
+          errors.push(`Row ${students.indexOf(student) + 2}: Unexpected error - ${err}`);
           failedCount++;
         }
       }
@@ -120,7 +193,7 @@ const ExcelUpload = () => {
     } catch (error) {
       toast({
         title: "Upload Error",
-        description: "Failed to process the file. Please ensure it's a valid CSV format.",
+        description: error instanceof Error ? error.message : "Failed to process the file. Please check the format.",
         variant: "destructive",
       });
     } finally {
@@ -153,7 +226,7 @@ const ExcelUpload = () => {
           Upload Student Data
         </CardTitle>
         <CardDescription>
-          Upload student information via CSV file. Download the template first to ensure proper format.
+          Upload student information via Excel (.xlsx, .xls) or CSV file. Download the template first to ensure proper format.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -165,14 +238,14 @@ const ExcelUpload = () => {
             <Input
               ref={fileInputRef}
               type="file"
-              accept=".csv,.txt"
+              accept=".xlsx,.xls,.csv,.txt"
               onChange={handleFileUpload}
               disabled={uploading}
               className="max-w-xs"
             />
             <Button disabled={uploading}>
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? "Uploading..." : "Upload CSV"}
+              {uploading ? "Uploading..." : "Upload File"}
             </Button>
           </div>
         </div>
@@ -180,10 +253,11 @@ const ExcelUpload = () => {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>CSV Format Requirements:</strong>
+            <strong>File Format Requirements:</strong>
             <ul className="mt-2 list-disc list-inside space-y-1">
+              <li>Supported formats: Excel (.xlsx, .xls) or CSV (.csv, .txt)</li>
               <li>Columns: roll_number, name, year, section, department, email (optional)</li>
-              <li>Year must be: "II Year", "III Year", or "IV Year"</li>
+              <li>Year must be: "1st Year", "2nd Year", "3rd Year", "4th Year" or "II Year", "III Year", "IV Year"</li>
               <li>Section must be: A, B, C, or D</li>
               <li>Passwords will be auto-generated for students</li>
             </ul>
