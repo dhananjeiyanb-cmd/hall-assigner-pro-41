@@ -66,7 +66,10 @@ const StudentManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted with data:', formData);
+    
     if (!formData.name || !formData.roll_number || !formData.year || !formData.section || !formData.department) {
+      console.log('Missing required fields');
       toast({
         title: "Missing Fields",
         description: "Please fill in all required fields.",
@@ -76,6 +79,7 @@ const StudentManagement = () => {
     }
 
     try {
+      console.log('Attempting to save student...');
       const studentData = {
         name: formData.name,
         roll_number: formData.roll_number,
